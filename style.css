@@ -1,0 +1,21 @@
+:root {
+	--blue: #4a86e8;
+}
+.hidden-text {
+	color: transparent;
+	background-color: gray;
+}
+
+.hidden-text.current {
+	background-color: blue;
+}
+.hidden-text.revealed {
+	color: var(--blue);
+	background-color: transparent;
+}
+
+.hidden-text:hover {
+	color: var(--blue);
+	background-color: transparent;
+}
+
