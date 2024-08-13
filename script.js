@@ -1,6 +1,6 @@
 (function() {
 	 // Define the color you want to target
-	 const targetColors = ['rgb(90, 90, 90)', 'rgb(74, 134, 232)']; // RGB equivalent of #5A5A5A
+	 const targetFonts = ["Roboto"]; 
 	 let hiddenElements = [];
 	 let currentIndex, previousIndex;
 	 let autoScroll = false;
@@ -12,9 +12,9 @@
 		 for (let i = 0; i < allElements.length; i++) {
 			 const element = allElements[i];
 			 const computedStyle = window.getComputedStyle(element);
-			 for (let i=0; i < targetColors.length; i++){
-			 	let targetColor = targetColors[i];
-				 if (computedStyle.color === targetColor) {
+			 for (let i=0; i < targetFonts.length; i++){
+			 	let targetFont = targetFonts[i];
+				 if (computedStyle.getPropertyValue('font-family') === targetFont) {
 					 hiddenElements.push(element);
 					 element.classList.add('hidden-text');
 

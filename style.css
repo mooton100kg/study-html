@@ -1,5 +1,6 @@
 :root {
-	--blue: #4a86e8;
+	--reveal: #D93E29;
+	--select: #29D9CA;
 }
 .hidden-text {
 	color: transparent;
@@ -7,15 +8,15 @@
 }
 
 .hidden-text.current {
-	background-color: blue;
+	background-color: var(--select);
 }
 .hidden-text.revealed {
-	color: var(--blue);
+	color: var(--reveal);
 	background-color: transparent;
 }
 
 .hidden-text:hover {
-	color: var(--blue);
+	color: var(--reveal);
 	background-color: transparent;
 }
 
