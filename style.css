@@ -1,6 +1,10 @@
 :root {
 	--reveal: #D93E29;
-	--select: #29D9CA;
+	--select: #D93E29;
+}
+
+body {
+	margin: 0 auto;
 }
 .hidden-text {
 	color: transparent;
@@ -20,3 +24,11 @@
 	background-color: transparent;
 }
 
+#userInput {
+	position: fixed;
+	bottom: 10px; /* Adjust as needed */
+	width: 80%;
+	font-size: 100%;
+	z-index: 1000; /* Ensure it stays on top */
+	padding; 5%;
+}
