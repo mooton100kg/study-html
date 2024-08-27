@@ -27,7 +27,7 @@ body {
 #userInput {
 	position: fixed;
 	bottom: 10px; /* Adjust as needed */
-	width: 80%;
+	width: 50%;
 	font-size: 100%;
 	z-index: 1000; /* Ensure it stays on top */
 	padding; 5%;

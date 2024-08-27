@@ -4,12 +4,27 @@ let hiddenElements = [];
 let currentIndex, previousIndex;
 let autoScroll = true;
 
-
 //create input element 
 const input = document.createElement('input');
 input.type = 'text';
 input.id = 'userInput';
 input.placeholder = 'Type something and press Enter';
+
+//device to detect as mobile
+const mobileBrowser = /iPhone/i;
+
+//mobile btn
+const btnContainer = document.createElement('div');
+btnContainer.classiName = 'container';
+
+const nextBtn = document.createElement('button');
+nextBtn.type = 'button';
+nextBtn.id = 'nextBtn';
+
+const previousBtn = document.createElement('button');
+previousBtn.type = 'button';
+previousBtn.id = 'previousBtn';
+
 
  // Function to find all elements with the target color
  function findHiddenTextElements() {
@@ -174,6 +189,20 @@ function inputElement(){
 	document.body.appendChild(input);
 };
 
+//detect mobile browser
+function isMobile(){
+	let agent = navigator.userAgent;
+	return mobileBrowser.test(agent);
+};
+
+//add btn to mobile
+function mobileBtn(){
+	document.body.appendChild(btnContainer);
+	btnContainer.appendChild(nextBtn);
+	btnContainer.appendChild(previousIndex);
+
+};
+
 function main(){
 	document.addEventListener('DOMContentLoaded', findHiddenTextElements);
 	document.addEventListener('DOMContentLoaded', inputElement);
@@ -188,6 +217,11 @@ function main(){
 	input.addEventListener('focusout', function(){
 		document.addEventListener('keydown', keyPress);
 	});
+
+	//add button if on mobile
+	if (isMobile()) {
+		mobileBtn();
+	};
 }
 
 //run main
