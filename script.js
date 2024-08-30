@@ -3,6 +3,8 @@ const targetFonts = ["Roboto"];
 let hiddenElements = [];
 let currentIndex, previousIndex;
 let autoScroll = true;
+let holdAns = false;
+let saveIndex = new Set();
 
 //create input element 
 const input = document.createElement('input');
@@ -51,10 +53,21 @@ previousBtn.id = 'previousBtn';
  // Function to reveal the next hidden text element
  function revealTextElement() {
  	if (hiddenElements[currentIndex].classList.contains('revealed')) {
-		hiddenElements[currentIndex].classList.remove('revealed');
+		 for (let i = 0; i < hiddenElements.length; i++){
+			 if (hiddenElements[i].classList.contains('revealed') && !holdAns){
+				 hiddenElements[i].classList.remove('revealed');
+			 }
+		}
 	}
 	else {
 		hiddenElements[currentIndex].classList.add('revealed');
+		nextElement = indexKey(currentIndex + 1) 
+		while (hiddenElements[currentIndex].nextElementSibling === hiddenElements[nextElement]){
+			currentIndex = indexKey(currentIndex + 1)
+			hiddenElements[currentIndex].classList.add('revealed');
+			hiddenElements[currentIndex].classList.add('current');
+			nextElement = indexKey(currentIndex + 1) 
+		}
 	}
 }
 
@@ -71,13 +84,13 @@ previousBtn.id = 'previousBtn';
 	}
  }
 
- function indexKey() {
-	 if (currentIndex > hiddenElements.length - 1) {
+ function indexKey(index) {
+	 if (index > hiddenElements.length - 1) {
 		 CI = 0;
-	 } else if (currentIndex < 0) {
+	 } else if (index < 0) {
 		 CI = hiddenElements.length - 1;
 	 } else {
-		 CI = currentIndex;
+		 CI = index;
 	 }
 		
 	 return CI
@@ -88,10 +101,10 @@ previousBtn.id = 'previousBtn';
 	 else if (key === 's') currentIndex++;
 	 else if (key === 'a') currentIndex--;
 
-	 currentIndex  = indexKey()
+	 currentIndex  = indexKey(currentIndex)
 
 	 for (let i = 0; i < hiddenElements.length; i++){
-		 if (hiddenElements[i].classList.contains('revealed')){
+		 if (hiddenElements[i].classList.contains('revealed') && !holdAns){
 			 hiddenElements[i].classList.remove('revealed');
 		 }
 		 if (hiddenElements[i].classList.contains('current')){
@@ -119,6 +132,44 @@ previousBtn.id = 'previousBtn';
 	});
 }
 
+//shuffle table row
+function shuffleTable(){
+	//get the parent table for convenience
+	let table = document.getElementsByTagName("table")[0];
+
+	//1. get all rows
+	let rowsCollection = table.querySelectorAll("tr");
+
+	//2. convert to array
+	let rows = Array.from(rowsCollection).slice(1); //skip the header row
+
+	//3. shuffle
+	shuffleArray(rows);
+
+	//4. add back to the DOM
+	for (const row of rows) {
+		table.appendChild(row);
+	}
+};
+
+function shuffleArray(array) {
+	for (var i = array.length - 1; i > 0; i--) {
+		var j = Math.floor(Math.random() * (i + 1));
+		var temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+};
+
+function nextSaveIndex(set){
+	for (let num of set) {
+		if (num > currentIndex) {
+			nextNearest = num;
+			break;
+		}
+	}
+	return nextNearest
+};
 
 // Event listener for keypress
 function keyPress(event){
@@ -162,8 +213,55 @@ function keyPress(event){
 		event.preventDefault();
 		input.focus();
 	}
+	else if (event.key === 'g') {
+		holdAns = !holdAns
+	}
+	else if (event.key === 'N') {
+		localStorage.setItem('bookmark', currentIndex);
+	}
+	else if (event.key === 'B') {
+		hiddenElements[currentIndex].classList.remove('current');
+		currentIndex = Number(localStorage.getItem('bookmark'));
+		hiddenElements[currentIndex].classList.add('current');
+	}
+	else if (event.key === 'n') {
+		if (localStorage.getItem("saveIndex") === null){
+			saveIndex = new Set([currentIndex]);
+			hiddenElements[currentIndex].classList.add('mark');
+		}
+		else {
+			saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
+			if (saveIndex.has(currentIndex)){
+				saveIndex.delete(currentIndex)
+				hiddenElements[currentIndex].classList.remove('mark');
+			}
+			else {
+				saveIndex.add(currentIndex);
+				hiddenElements[currentIndex].classList.add('mark');
+			}
+		}
+
+		localStorage.setItem("saveIndex", JSON.stringify([...saveIndex].sort((a, b) => (a - b))));
+	}
+	else if (event.key === 'b') {
+		saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
+		if (localStorage.getItem("saveIndex") != null){
+			hiddenElements[currentIndex].classList.remove('current')
+			currentIndex = nextSaveIndex(saveIndex);
+			hiddenElements[currentIndex].classList.add('current')
+			scrollToElementVertically(hiddenElements[currentIndex]);
+			if (!hiddenElements[currentIndex].classList.contains('mark')){
+				for (let i of saveIndex){
+					hiddenElements[i].classList.add('mark')
+				}	
+			}
+		}
+	}
+	else if (event.key === 'z') {
+		shuffleTable();			
+	}
 	else if (event.key === 'h') {
-		alert('A = go up\nS = go down\nD = reveal\nF = reveal all\nE = to select\nW = scroll down\nR = scroll up\nQ = toggle auto scroll\nT = focus on input');
+		alert('A = go up\nS = go down\nD = reveal\nF = reveal all\nE = to select\nW = scroll down\nR = scroll up\nQ = toggle auto scroll\nT = focus on input\nG = hold reveal\nN = new bookmark\nB = go to bookmark');
 	}
 
 };
@@ -172,7 +270,7 @@ function inputKeyPress(event) {
 	if (event.key === 'Enter') {
 		correct = hiddenElements[currentIndex].textContent.trim().toLowerCase()
 		answer = this.value.toLowerCase()
-		if (answer == correct || answer == ' ') {
+		if (answer == correct || answer == ' ' || (answer != correct && answer != "")) {
 			revealTextElement();
 		}
 		else if (answer == '') {
@@ -197,10 +295,7 @@ function isMobile(){
 
 //add btn to mobile
 function mobileBtn(){
-	document.body.appendChild(btnContainer);
-	btnContainer.appendChild(nextBtn);
-	btnContainer.appendChild(previousIndex);
-
+	document.body.appendChild(nextBtn);
 };
 
 function main(){

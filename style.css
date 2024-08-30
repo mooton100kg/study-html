@@ -1,6 +1,8 @@
 :root {
 	--reveal: #D93E29;
 	--select: #D93E29;
+	--mark: black;
+	--mark-select: #992c1e;
 }
 
 body {
@@ -11,14 +13,27 @@ body {
 	background-color: gray;
 }
 
-.hidden-text.current {
+.current {
 	background-color: var(--select);
 }
-.hidden-text.revealed {
+
+.mark.current {
+	background-color: var(--mark-select);
+}
+
+.revealed {
 	color: var(--reveal);
 	background-color: transparent;
 }
 
+.mark {
+	background-color: var(--mark);
+}
+
+.mark.revealed {
+	color: var(--mark-select);
+	background-color: transparent;
+}
 .hidden-text:hover {
 	color: var(--reveal);
 	background-color: transparent;
@@ -31,4 +46,10 @@ body {
 	font-size: 100%;
 	z-index: 1000; /* Ensure it stays on top */
 	padding; 5%;
+}
+
+#nextBtn {
+
+	position: fixed;
+	top: 10px; /* Adjust as needed */
 }
