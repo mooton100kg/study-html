@@ -1,5 +1,4 @@
 :root {
-	--reveal: #D93E29;
 	--select: #D93E29;
 	--mark: black;
 	--mark-select: #992c1e;
@@ -8,6 +7,7 @@
 body {
 	margin: 0 auto;
 }
+
 .hidden-text {
 	color: transparent;
 	background-color: gray;
@@ -22,7 +22,7 @@ body {
 }
 
 .revealed {
-	color: var(--reveal);
+	color: var(--select);
 	background-color: transparent;
 }
 
@@ -35,7 +35,7 @@ body {
 	background-color: transparent;
 }
 .hidden-text:hover {
-	color: var(--reveal);
+	color: var(--select);
 	background-color: transparent;
 }
 
@@ -52,4 +52,7 @@ body {
 
 	position: fixed;
 	top: 10px; /* Adjust as needed */
+}
+
+@media only screen and (max-width: 375px){
 }
