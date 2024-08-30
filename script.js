@@ -143,8 +143,15 @@ function goToNextElement(key) {
 		}
 	}
 
-	//reveal current element
-	hiddenElements[currentIndex].classList.add('current');
+	//select current element
+	adjacentIndex = checkAdjacentElement(currentIndex);
+	for (let i of adjacentIndex) {
+		hiddenElements[i].classList.add('current');
+	}
+	if (key === 's') currentIndex = adjacentIndex[adjacentIndex.length - 1];
+	else if (key === 'a') currentIndex = adjacentIndex[0];
+	
+	
 
 	//scroll to current element
 	if (autoScroll) scrollToElementVertically(hiddenElements[currentIndex]);
@@ -222,7 +229,7 @@ function inputKeyPress(event) {
 		this.value = '';  // Clear the input after checking
 	}
 
-	//un-focus input element if click Eac
+	//un-focus input element if click Esc
 	else if (event.keyCode == 27) {
 		input.blur();
 	}
@@ -231,8 +238,38 @@ function inputKeyPress(event) {
 //add mark class to save element in saveIndex
 function addMarkToSaveIndex(saveIndex) {
 	for (let i of saveIndex) {
-		hiddenElements[i].classList.add('mark')
+		for (let j of checkAdjacentElement(i)) {
+			hiddenElements[j].classList.add('mark')
+		}
 	}
+}
+
+//save current element to saveIndex
+function saveToSaveIndex() {
+	let index = checkAdjacentElement(currentIndex)[0];
+	//check if saveIndex is empty
+	if (localStorage.getItem("saveIndex") === null){
+		saveIndex = new Set([index]);
+		hiddenElements[index].classList.add('mark');
+	}
+	else {
+		//get saveIndex from localStorage
+		saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
+
+		//check if current element is in saveIndex
+		//delete element from saveIndex if it in
+		if (saveIndex.has(index)){
+			saveIndex.delete(index)
+			hiddenElements[index].classList.remove('mark');
+		}
+		else {
+			saveIndex.add(index);
+			hiddenElements[index].classList.add('mark');
+		}
+	}
+
+	//save new saveIndex in localStorage
+	localStorage.setItem("saveIndex", JSON.stringify([...saveIndex].sort((a, b) => (a - b))));
 }
 
 //Event listener for keypress
@@ -288,44 +325,37 @@ function keyPress(event){
 	}
 	else if (event.key === 'B') {
 		//go to saved element in bookmark
-		hiddenElements[currentIndex].classList.remove('current');
+		for (let i of checkAdjacentElement(currentIndex)) {
+			hiddenElements[i].classList.remove('current');
+		}
 		currentIndex = Number(localStorage.getItem('bookmark'));
-		hiddenElements[currentIndex].classList.add('current');
+		for (let i of checkAdjacentElement(currentIndex)) {
+			hiddenElements[i].classList.add('current');
+		}
 	}
 	else if (event.key === 'n') {
-		//check if saveIndex is empty
-		if (localStorage.getItem("saveIndex") === null){
-			saveIndex = new Set([currentIndex]);
-			hiddenElements[currentIndex].classList.add('mark');
-		}
-		else {
-			//get saveIndex from localStorage
-			saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
-
-			//check if current element is in saveIndex
-			//delete element from saveIndex if it in
-			if (saveIndex.has(currentIndex)){
-				saveIndex.delete(currentIndex)
-				hiddenElements[currentIndex].classList.remove('mark');
-			}
-			else {
-				saveIndex.add(currentIndex);
-				hiddenElements[currentIndex].classList.add('mark');
-			}
-		}
-
-		//save new saveIndex in localStorage
-		localStorage.setItem("saveIndex", JSON.stringify([...saveIndex].sort((a, b) => (a - b))));
+		saveToSaveIndex();
 	}
 	else if (event.key === 'b') {
-		//check if saveIndex is empty > if still empty do nothing
+		//check if saveIndex is empty > if empty do nothing
 		if (saveIndex.size != 0){
-			if (currentIndex != null) hiddenElements[currentIndex].classList.remove('current')
-			else currentIndex = 0
+			//check if current element is selected
+			if (currentIndex != null) {
+				for (let i of checkAdjacentElement(currentIndex)) {
+					hiddenElements[i].classList.remove('current')
+					if (!holdAns) hiddenElements[i].classList.remove('revealed')
+				}
+			}
+			else {
+				currentIndex = 0
+			}
 
 			//find nearest element that is in saveIndex
-			currentIndex = nextSaveElement(saveIndex);
-			hiddenElements[currentIndex].classList.add('current')
+			adjacentIndex = checkAdjacentElement(nextSaveElement(saveIndex));
+			for (let i of adjacentIndex) {
+				hiddenElements[i].classList.add('current')
+			}
+			currentIndex = adjacentIndex[adjacentIndex.length - 1];
 			scrollToElementVertically(hiddenElements[currentIndex]);
 		}
 	}
