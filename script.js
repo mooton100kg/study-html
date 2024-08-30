@@ -1,10 +1,10 @@
 // Define the color you want to target
 const targetFonts = ["Roboto"]; 
 let hiddenElements = [];
-let currentIndex, previousIndex;
+let currentIndex;
 let autoScroll = true;
 let holdAns = false;
-let saveIndex = new Set();
+let saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
 
 //create input element 
 const input = document.createElement('input');
@@ -28,130 +28,163 @@ previousBtn.type = 'button';
 previousBtn.id = 'previousBtn';
 
 
- // Function to find all elements with the target color
- function findHiddenTextElements() {
-	 const allElements = document.body.getElementsByTagName('*');
+// Function to find all elements with target font
+function findHiddenTextElements() {
+	const allElements = document.body.getElementsByTagName('*');
 
-	 for (let i = 0; i < allElements.length; i++) {
-		 const element = allElements[i];
-		 const computedStyle = window.getComputedStyle(element);
-		 for (let i=0; i < targetFonts.length; i++){
+	for (let i = 0; i < allElements.length; i++) {
+		const element = allElements[i];
+		const computedStyle = window.getComputedStyle(element);
+		for (let i=0; i < targetFonts.length; i++){
 			let targetFont = targetFonts[i];
-			 if (computedStyle.getPropertyValue('font-family') === targetFont) {
-				 hiddenElements.push(element);
-				 element.classList.add('hidden-text');
+			if (computedStyle.getPropertyValue('font-family') === targetFont) {
+				hiddenElements.push(element);
+				element.classList.add('hidden-text');
 
-				 element.addEventListener('click', function(e) {
+				element.addEventListener('click', function(e) {
 					currentIndex = hiddenElements.indexOf(e.target);
-					goToText('click');
-				 });
-			 }
-		 }
-	 }
- }
+					goToNextElement('click');
+				});
+			}
+		}
+	}
 
- // Function to reveal the next hidden text element
- function revealTextElement() {
- 	if (hiddenElements[currentIndex].classList.contains('revealed')) {
-		 for (let i = 0; i < hiddenElements.length; i++){
-			 if (hiddenElements[i].classList.contains('revealed') && !holdAns){
-				 hiddenElements[i].classList.remove('revealed');
-			 }
+	//add mark to saveIndex
+	addMarkToSaveIndex(saveIndex)
+}
+
+//check if there are any adjacent element
+function checkAdjacentElement(CIndex){
+	let NIndex = CIndex + 1;
+	let PIndex = CIndex - 1;
+	let adjacentIndex = [CIndex];
+	
+	while (hiddenElements[NIndex - 1].nextElementSibling === hiddenElements[NIndex]) {
+		adjacentIndex.push(NIndex++);
+	}
+	while (hiddenElements[PIndex].nextElementSibling === hiddenElements[PIndex + 1]) {
+		adjacentIndex.push(PIndex--);
+	}
+	return adjacentIndex.sort((a, b) => (a - b))
+}
+
+// Function to reveal the next hidden text element
+function revealTextElement() {
+	if (hiddenElements[currentIndex].classList.contains('revealed')) {
+		for (let i = 0; i < hiddenElements.length; i++){
+			if (hiddenElements[i].classList.contains('revealed') && !holdAns){
+				hiddenElements[i].classList.remove('revealed');
+			}
 		}
 	}
 	else {
-		hiddenElements[currentIndex].classList.add('revealed');
-		nextElement = indexKey(currentIndex + 1) 
-		while (hiddenElements[currentIndex].nextElementSibling === hiddenElements[nextElement]){
-			currentIndex = indexKey(currentIndex + 1)
-			hiddenElements[currentIndex].classList.add('revealed');
-			hiddenElements[currentIndex].classList.add('current');
-			nextElement = indexKey(currentIndex + 1) 
+		adjacentIndex = checkAdjacentElement(currentIndex);
+		for (let i of adjacentIndex) {
+			hiddenElements[i].classList.add('revealed');
+			hiddenElements[i].classList.add('current');
+		}
+		currentIndex = adjacentIndex[adjacentIndex.length - 1];
+	}
+}
+
+//F key to reveal all element
+function revealAllTextElement() {
+	//check if all are already revealed
+	if (hiddenElements[0].classList.contains('revealed')) {
+		for (let element of hiddenElements) {
+			element.classList.remove('revealed');
+		}	
+	}
+	else {
+		for (let element of hiddenElements){
+			element.classList.add('revealed');
 		}
 	}
 }
 
- function revealAllTextElement() {
-	if (hiddenElements[0].classList.contains('revealed')) {
-		for (let i=0; i<hiddenElements.length; i++) {
-			hiddenElements[i].classList.remove('revealed');
-		}	
-	}
+//calculate next element index
+function calculateNextElementIndex(indexPlus) {
+	//index Plus = Index++ w/o calculate anything
+
+	//if element is the last (for S key)
+	if (indexPlus > hiddenElements.length - 1) {
+		nextIndex = 0;
+	} 
+	//if element is the first (for A key)
+	else if (indexPlus < 0) {
+		nextIndex = hiddenElements.length - 1;
+	} 
 	else {
-		for (let i = 0; i < hiddenElements.length; i++){
-			hiddenElements[i].classList.add('revealed');
+		nextIndex = indexPlus;
+	}
+
+	return nextIndex
+}
+
+//when S/A key clicked, go to next element
+function goToNextElement(key) {
+	//if no element is selected, select first element
+	if (currentIndex == null) currentIndex = 0;
+	//if key S/A clicked w/ already selected element, go to next element
+	else if (key === 's') currentIndex++;
+	else if (key === 'a') currentIndex--;
+
+	//calculat next element index 
+	currentIndex  = calculateNextElementIndex(currentIndex)
+
+	//remove not current element class
+	for (let element of hiddenElements){
+		//check if holdAns is on
+		if (element.classList.contains('revealed') && !holdAns){
+			element.classList.remove('revealed');
+		}
+		if (element.classList.contains('current')){
+			element.classList.remove('current');
 		}
 	}
- }
 
- function indexKey(index) {
-	 if (index > hiddenElements.length - 1) {
-		 CI = 0;
-	 } else if (index < 0) {
-		 CI = hiddenElements.length - 1;
-	 } else {
-		 CI = index;
-	 }
-		
-	 return CI
- }
+	//reveal current element
+	hiddenElements[currentIndex].classList.add('current');
 
- function goToText(key) {
-	 if (currentIndex == null) currentIndex = 0;
-	 else if (key === 's') currentIndex++;
-	 else if (key === 'a') currentIndex--;
+	//scroll to current element
+	if (autoScroll) scrollToElementVertically(hiddenElements[currentIndex]);
+}
 
-	 currentIndex  = indexKey(currentIndex)
+//scroll to make element in the middle of the screen
+function scrollToElementVertically(element) {
+	const rect = element.getBoundingClientRect();
+	const elementHeight = rect.height;
 
-	 for (let i = 0; i < hiddenElements.length; i++){
-		 if (hiddenElements[i].classList.contains('revealed') && !holdAns){
-			 hiddenElements[i].classList.remove('revealed');
-		 }
-		 if (hiddenElements[i].classList.contains('current')){
-			 hiddenElements[i].classList.remove('current');
-		 }
-	 }
+	// Calculate the scroll position needed to center the element vertically
+	const viewportHeight = window.innerHeight;
+	const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-	 hiddenElements[currentIndex].classList.add('current');
-	 if (autoScroll) scrollToElementVertically(hiddenElements[currentIndex]);
- }
+	const top = rect.top + scrollTop - (viewportHeight / 2 - elementHeight / 2);
 
- function scrollToElementVertically(element) {
-	 const rect = element.getBoundingClientRect();
-	 const elementHeight = rect.height;
-
-	 // Calculate the scroll position needed to center the element vertically
-	 const viewportHeight = window.innerHeight;
-	 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-	 const top = rect.top + scrollTop - (viewportHeight / 2 - elementHeight / 2);
-
-	 window.scrollTo({
+	window.scrollTo({
 		top: top,
-		behavior: 'smooth' // Smooth scrolling
+		behavior: 'smooth'
 	});
 }
 
 //shuffle table row
 function shuffleTable(){
-	//get the parent table for convenience
 	let table = document.getElementsByTagName("table")[0];
 
-	//1. get all rows
 	let rowsCollection = table.querySelectorAll("tr");
 
-	//2. convert to array
 	let rows = Array.from(rowsCollection).slice(1); //skip the header row
 
-	//3. shuffle
+	//shuffle the array
 	shuffleArray(rows);
 
-	//4. add back to the DOM
+	//replace the row with new order
 	for (const row of rows) {
 		table.appendChild(row);
 	}
 };
 
+//shuffle the array
 function shuffleArray(array) {
 	for (var i = array.length - 1; i > 0; i--) {
 		var j = Math.floor(Math.random() * (i + 1));
@@ -161,23 +194,54 @@ function shuffleArray(array) {
 	}
 };
 
-function nextSaveIndex(set){
+//find next nearest saved element
+function nextSaveElement(set){
+	let nextNearest;
 	for (let num of set) {
 		if (num > currentIndex) {
 			nextNearest = num;
 			break;
 		}
 	}
+	if (nextNearest == currentIndex || nextNearest == null) nextNearest = [...set][0]
 	return nextNearest
 };
 
-// Event listener for keypress
+//input key check after click Enter
+function inputKeyPress(event) {
+	if (event.key === 'Enter') {
+		correct = hiddenElements[currentIndex].textContent.trim().toLowerCase()
+		answer = this.value.toLowerCase()
+
+		if (answer == '') {
+			goToNextElement('s');
+		}
+		else {
+			revealTextElement();
+		}
+		this.value = '';  // Clear the input after checking
+	}
+
+	//un-focus input element if click Eac
+	else if (event.keyCode == 27) {
+		input.blur();
+	}
+}
+
+//add mark class to save element in saveIndex
+function addMarkToSaveIndex(saveIndex) {
+	for (let i of saveIndex) {
+		hiddenElements[i].classList.add('mark')
+	}
+}
+
+//Event listener for keypress
 function keyPress(event){
 	if (event.key === 'a') {
-		goToText('a');
+		goToNextElement('a');
 	}
 	else if (event.key === 's') {
-		goToText('s');
+		goToNextElement('s');
 	}
 	else if (event.key === 'd') {
 		revealTextElement();
@@ -203,34 +267,43 @@ function keyPress(event){
 	else if (event.key === 'r') {
 		const scrollAmount = window.innerHeight / 4;
 
-		// Scroll down by the calculated amount
+		// Scroll up by the calculated amount
 		window.scrollBy({
 			top: -scrollAmount,
 			behavior: 'smooth' // Smooth scrolling
 		});
 	}
 	else if (event.key === 't') {
+		//focus input element
 		event.preventDefault();
 		input.focus();
 	}
 	else if (event.key === 'g') {
+		//toggle holdAns function
 		holdAns = !holdAns
 	}
 	else if (event.key === 'N') {
+		//save current element to bookmark
 		localStorage.setItem('bookmark', currentIndex);
 	}
 	else if (event.key === 'B') {
+		//go to saved element in bookmark
 		hiddenElements[currentIndex].classList.remove('current');
 		currentIndex = Number(localStorage.getItem('bookmark'));
 		hiddenElements[currentIndex].classList.add('current');
 	}
 	else if (event.key === 'n') {
+		//check if saveIndex is empty
 		if (localStorage.getItem("saveIndex") === null){
 			saveIndex = new Set([currentIndex]);
 			hiddenElements[currentIndex].classList.add('mark');
 		}
 		else {
+			//get saveIndex from localStorage
 			saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
+
+			//check if current element is in saveIndex
+			//delete element from saveIndex if it in
 			if (saveIndex.has(currentIndex)){
 				saveIndex.delete(currentIndex)
 				hiddenElements[currentIndex].classList.remove('mark');
@@ -241,20 +314,19 @@ function keyPress(event){
 			}
 		}
 
+		//save new saveIndex in localStorage
 		localStorage.setItem("saveIndex", JSON.stringify([...saveIndex].sort((a, b) => (a - b))));
 	}
 	else if (event.key === 'b') {
-		saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
-		if (localStorage.getItem("saveIndex") != null){
-			hiddenElements[currentIndex].classList.remove('current')
-			currentIndex = nextSaveIndex(saveIndex);
+		//check if saveIndex is empty > if still empty do nothing
+		if (saveIndex.size != 0){
+			if (currentIndex != null) hiddenElements[currentIndex].classList.remove('current')
+			else currentIndex = 0
+
+			//find nearest element that is in saveIndex
+			currentIndex = nextSaveElement(saveIndex);
 			hiddenElements[currentIndex].classList.add('current')
 			scrollToElementVertically(hiddenElements[currentIndex]);
-			if (!hiddenElements[currentIndex].classList.contains('mark')){
-				for (let i of saveIndex){
-					hiddenElements[i].classList.add('mark')
-				}	
-			}
 		}
 	}
 	else if (event.key === 'z') {
@@ -265,23 +337,6 @@ function keyPress(event){
 	}
 
 };
-
-function inputKeyPress(event) {
-	if (event.key === 'Enter') {
-		correct = hiddenElements[currentIndex].textContent.trim().toLowerCase()
-		answer = this.value.toLowerCase()
-		if (answer == correct || answer == ' ' || (answer != correct && answer != "")) {
-			revealTextElement();
-		}
-		else if (answer == '') {
-			goToText('s');
-		}
-		this.value = '';  // Clear the input after logging
-	}
-	else if (event.keyCode == 27) {
-		input.blur();
-	}
-}
 
 function inputElement(){
 	document.body.appendChild(input);
@@ -300,20 +355,23 @@ function mobileBtn(){
 
 function main(){
 	document.addEventListener('DOMContentLoaded', findHiddenTextElements);
-	document.addEventListener('DOMContentLoaded', inputElement);
 	document.addEventListener('keydown', keyPress);
 
+	//check if input element is click Enter
 	input.addEventListener('keydown', inputKeyPress);
 
+	//if focus on input element, don't listen to keypress
 	input.addEventListener('focusin', function(){
 		document.removeEventListener('keydown', keyPress);
 	});
 
+	//if not focus on input element, listen to keypress
 	input.addEventListener('focusout', function(){
 		document.addEventListener('keydown', keyPress);
 	});
 
 	//add button if on mobile
+	document.addEventListener('DOMContentLoaded', inputElement);
 	if (isMobile()) {
 		mobileBtn();
 	};
