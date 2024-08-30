@@ -16,17 +16,9 @@ input.placeholder = 'Type something and press Enter';
 const mobileBrowser = /iPhone/i;
 
 //mobile btn
-const btnContainer = document.createElement('div');
-btnContainer.classiName = 'container';
-
 const nextBtn = document.createElement('button');
 nextBtn.type = 'button';
 nextBtn.id = 'nextBtn';
-
-const previousBtn = document.createElement('button');
-previousBtn.type = 'button';
-previousBtn.id = 'previousBtn';
-
 
 // Function to find all elements with target font
 function findHiddenTextElements() {
@@ -55,14 +47,14 @@ function findHiddenTextElements() {
 
 //check if there are any adjacent element
 function checkAdjacentElement(CIndex){
-	let NIndex = CIndex + 1;
-	let PIndex = CIndex - 1;
+	let NIndex = calculateNextElementIndex(CIndex + 1);
+	let PIndex = calculateNextElementIndex(CIndex - 1);
 	let adjacentIndex = [CIndex];
 	
-	while (hiddenElements[NIndex - 1].nextElementSibling === hiddenElements[NIndex]) {
+	while (hiddenElements[calculateNextElementIndex(NIndex - 1)].nextElementSibling === hiddenElements[NIndex]) {
 		adjacentIndex.push(NIndex++);
 	}
-	while (hiddenElements[PIndex].nextElementSibling === hiddenElements[PIndex + 1]) {
+	while (hiddenElements[PIndex].nextElementSibling === hiddenElements[calculateNextElementIndex(PIndex + 1)]) {
 		adjacentIndex.push(PIndex--);
 	}
 	return adjacentIndex.sort((a, b) => (a - b))
@@ -368,6 +360,7 @@ function keyPress(event){
 
 };
 
+//add input element to document
 function inputElement(){
 	document.body.appendChild(input);
 };
@@ -378,32 +371,30 @@ function isMobile(){
 	return mobileBrowser.test(agent);
 };
 
-//add btn to mobile
-function mobileBtn(){
-	document.body.appendChild(nextBtn);
-};
-
 function main(){
-	document.addEventListener('DOMContentLoaded', findHiddenTextElements);
-	document.addEventListener('keydown', keyPress);
-
-	//check if input element is click Enter
-	input.addEventListener('keydown', inputKeyPress);
-
-	//if focus on input element, don't listen to keypress
-	input.addEventListener('focusin', function(){
-		document.removeEventListener('keydown', keyPress);
-	});
-
-	//if not focus on input element, listen to keypress
-	input.addEventListener('focusout', function(){
+	if (!isMobile()){
+		document.addEventListener('DOMContentLoaded', findHiddenTextElements);
 		document.addEventListener('keydown', keyPress);
-	});
+		document.addEventListener('DOMContentLoaded', inputElement);
+
+		//check if input element is click Enter
+		input.addEventListener('keydown', inputKeyPress);
+
+		//if focus on input element, don't listen to keypress
+		input.addEventListener('focusin', function(){
+			document.removeEventListener('keydown', keyPress);
+		});
+
+		//if not focus on input element, listen to keypress
+		input.addEventListener('focusout', function(){
+			document.addEventListener('keydown', keyPress);
+		});
+	}
 
 	//add button if on mobile
-	document.addEventListener('DOMContentLoaded', inputElement);
-	if (isMobile()) {
-		mobileBtn();
+	else if (isMobile()) {
+		pdf = window.location.pathname.split("/").pop().replace('.html','.pdf')
+		window.open(pdf, '_self');
 	};
 }
 
