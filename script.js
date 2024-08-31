@@ -1,5 +1,5 @@
 // Define the color you want to target
-const targetFonts = ["Roboto"]; 
+const targetFonts = ['"Chakra Petch"']; 
 let hiddenElements = [];
 let currentIndex;
 let autoScroll = true;
