@@ -8,9 +8,18 @@ body {
 	margin: 0 auto;
 }
 
+span {
+	line-height: 1.4;
+}
+
 .hidden-text {
 	color: transparent;
 	background-color: gray;
+}
+
+img.hidden-text {
+	opacity: 0;
+	transition: 0.2s;
 }
 
 .current {
@@ -34,9 +43,14 @@ body {
 	color: var(--mark-select);
 	background-color: transparent;
 }
+
 .hidden-text:hover {
 	color: var(--select);
 	background-color: transparent;
+}
+
+img.hidden-text:hover {
+	opacity: 1;
 }
 
 #userInput {

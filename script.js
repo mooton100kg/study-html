@@ -39,6 +39,10 @@ function findHiddenTextElements() {
 				});
 			}
 		}
+		if (document.title == 'patho' && element.tagName == 'IMG') {
+			hiddenElements.push(element);
+			element.classList.add('hidden-text');
+		}
 	}
 
 	//add mark to saveIndex
