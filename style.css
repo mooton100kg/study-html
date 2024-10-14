@@ -19,7 +19,7 @@ span {
 
 img.hidden-text {
 	opacity: 0;
-	transition: 0.2s;
+	transition: 0.15s;
 }
 
 .current {
@@ -33,6 +33,10 @@ img.hidden-text {
 .revealed {
 	color: var(--select);
 	background-color: transparent;
+}
+
+img.revealed {
+	opacity: 1;
 }
 
 .mark {

@@ -1,10 +1,14 @@
+// Get the current file name
+let fileName = location.pathname.split("/").pop();
+let localStorage_saveIndex = fileName + '_saveIndex'
+
 // Define the color you want to target
 const targetFonts = ['"Chakra Petch"']; 
 let hiddenElements = [];
 let currentIndex;
 let autoScroll = true;
 let holdAns = false;
-let saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
+let saveIndex = new Set(JSON.parse(localStorage.getItem(localStorage_saveIndex)));
 
 //create input element 
 const input = document.createElement('input');
@@ -176,7 +180,7 @@ function shuffleTable(){
 
 	let rowsCollection = table.querySelectorAll("tr");
 
-	let rows = Array.from(rowsCollection).slice(1); //skip the header row
+	let rows = Array.from(rowsCollection)
 
 	//shuffle the array
 	shuffleArray(rows);
@@ -244,13 +248,13 @@ function addMarkToSaveIndex(saveIndex) {
 function saveToSaveIndex() {
 	let index = checkAdjacentElement(currentIndex)[0];
 	//check if saveIndex is empty
-	if (localStorage.getItem("saveIndex") === null){
+	if (localStorage.getItem(localStorage_saveIndex) === null){
 		saveIndex = new Set([index]);
 		hiddenElements[index].classList.add('mark');
 	}
 	else {
 		//get saveIndex from localStorage
-		saveIndex = new Set(JSON.parse(localStorage.getItem("saveIndex")));
+		saveIndex = new Set(JSON.parse(localStorage.getItem(localStorage_saveIndex)));
 
 		//check if current element is in saveIndex
 		//delete element from saveIndex if it in
@@ -265,7 +269,7 @@ function saveToSaveIndex() {
 	}
 
 	//save new saveIndex in localStorage
-	localStorage.setItem("saveIndex", JSON.stringify([...saveIndex].sort((a, b) => (a - b))));
+	localStorage.setItem(localStorage_saveIndex, JSON.stringify([...saveIndex].sort((a, b) => (a - b))));
 }
 
 //Event listener for keypress
@@ -361,7 +365,9 @@ function keyPress(event){
 	else if (event.key === 'h') {
 		alert('A = go up\nS = go down\nD = reveal\nF = reveal all\nE = to select\nW = scroll down\nR = scroll up\nQ = toggle auto scroll\nT = focus on input\nG = hold reveal\nN = new bookmark\nB = go to bookmark');
 	}
-
+	else if (event.key === '`' && document.title == 'patho') {
+		shuffleTable();
+	}
 };
 
 //add input element to document
