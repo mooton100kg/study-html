@@ -363,7 +363,7 @@ function keyPress(event){
 		shuffleTable();			
 	}
 	else if (event.key === 'h') {
-		alert(`Hidden element = ${hiddenElements.length}\nCurrent = ${currentIndex}\nSave element = ${saveIndex.size}\nA = go up\nS = go down\nD = reveal\nF = reveal all\nE = to select\nW = scroll down\nR = scroll up\nQ = toggle auto scroll\nT = focus on input\nG = hold reveal\nN = new bookmark\nB = go to bookmark`);
+		alert('A = go up\nS = go down\nD = reveal\nF = reveal all\nE = to select\nW = scroll down\nR = scroll up\nQ = toggle auto scroll\nT = focus on input\nG = hold reveal\nN = new bookmark\nB = go to bookmark');
 	}
 	else if (event.key === '`' && document.title == 'patho') {
 		shuffleTable();

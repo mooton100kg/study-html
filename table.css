@@ -1,0 +1,76 @@
+:root {
+	--select: #D93E29;
+	--mark: black;
+	--mark-select: #992c1e;
+}
+
+body {
+	margin: 0 auto;
+}
+
+span {
+	line-height: 1.4;
+}
+
+.hidden-text {
+	color: transparent;
+	background-color: gray;
+}
+
+img.hidden-text {
+	opacity: 0;
+	transition: 0.15s;
+}
+
+.current {
+	background-color: var(--select);
+}
+
+.mark.current {
+	background-color: var(--mark-select);
+}
+
+.revealed {
+	color: var(--select);
+	background-color: transparent;
+}
+
+img.revealed {
+	opacity: 1;
+}
+
+.mark {
+	background-color: var(--mark);
+}
+
+.mark.revealed {
+	color: var(--mark-select);
+	background-color: transparent;
+}
+
+.hidden-text:hover {
+	color: var(--select);
+	background-color: transparent;
+}
+
+img.hidden-text:hover {
+	opacity: 1;
+}
+
+#userInput {
+	position: fixed;
+	bottom: 10px; /* Adjust as needed */
+	width: 50%;
+	font-size: 100%;
+	z-index: 1000; /* Ensure it stays on top */
+	padding; 5%;
+}
+
+#nextBtn {
+
+	position: fixed;
+	top: 10px; /* Adjust as needed */
+}
+
+@media only screen and (max-width: 375px){
+}
