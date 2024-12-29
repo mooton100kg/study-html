@@ -1,9 +1,24 @@
+//add hidden element
+// let after_index = 0;
+// let add_index = 0;
+// let newSaveIndex = []
+
+// for (let i of saveIndex) {
+// 	if (i >= after_index){
+// 		i+= add_index;
+// 	}
+// 	newSaveIndex.push(i);
+// }
+
+// localStorage.setItem(localStorage_saveIndex, JSON.stringify([...newSaveIndex].sort((a, b) => (a - b))));
+
+
 // Get the current file name
 let fileName = location.pathname.split("/").pop();
 let localStorage_saveIndex = fileName + '_saveIndex'
 
 // Define the color you want to target
-const targetFonts = ['"Chakra Petch"']; 
+const targetFonts = ['"Chakra Petch"'];
 let hiddenElements = [];
 let currentIndex;
 let autoScroll = true;
@@ -31,13 +46,13 @@ function findHiddenTextElements() {
 	for (let i = 0; i < allElements.length; i++) {
 		const element = allElements[i];
 		const computedStyle = window.getComputedStyle(element);
-		for (let i=0; i < targetFonts.length; i++){
+		for (let i = 0; i < targetFonts.length; i++) {
 			let targetFont = targetFonts[i];
 			if (computedStyle.getPropertyValue('font-family') === targetFont) {
 				hiddenElements.push(element);
 				element.classList.add('hidden-text');
 
-				element.addEventListener('click', function(e) {
+				element.addEventListener('click', function (e) {
 					currentIndex = hiddenElements.indexOf(e.target);
 					goToNextElement('click');
 				});
@@ -54,11 +69,11 @@ function findHiddenTextElements() {
 }
 
 //check if there are any adjacent element
-function checkAdjacentElement(CIndex){
+function checkAdjacentElement(CIndex) {
 	let NIndex = calculateNextElementIndex(CIndex + 1);
 	let PIndex = calculateNextElementIndex(CIndex - 1);
 	let adjacentIndex = [CIndex];
-	
+
 	while (hiddenElements[calculateNextElementIndex(NIndex - 1)].nextElementSibling === hiddenElements[NIndex]) {
 		adjacentIndex.push(NIndex++);
 	}
@@ -71,8 +86,8 @@ function checkAdjacentElement(CIndex){
 // Function to reveal the next hidden text element
 function revealTextElement() {
 	if (hiddenElements[currentIndex].classList.contains('revealed')) {
-		for (let i = 0; i < hiddenElements.length; i++){
-			if (hiddenElements[i].classList.contains('revealed') && !holdAns){
+		for (let i = 0; i < hiddenElements.length; i++) {
+			if (hiddenElements[i].classList.contains('revealed') && !holdAns) {
 				hiddenElements[i].classList.remove('revealed');
 			}
 		}
@@ -93,10 +108,10 @@ function revealAllTextElement() {
 	if (hiddenElements[0].classList.contains('revealed')) {
 		for (let element of hiddenElements) {
 			element.classList.remove('revealed');
-		}	
+		}
 	}
 	else {
-		for (let element of hiddenElements){
+		for (let element of hiddenElements) {
 			element.classList.add('revealed');
 		}
 	}
@@ -109,11 +124,11 @@ function calculateNextElementIndex(indexPlus) {
 	//if element is the last (for S key)
 	if (indexPlus > hiddenElements.length - 1) {
 		nextIndex = 0;
-	} 
+	}
 	//if element is the first (for A key)
 	else if (indexPlus < 0) {
 		nextIndex = hiddenElements.length - 1;
-	} 
+	}
 	else {
 		nextIndex = indexPlus;
 	}
@@ -130,15 +145,15 @@ function goToNextElement(key) {
 	else if (key === 'a') currentIndex--;
 
 	//calculat next element index 
-	currentIndex  = calculateNextElementIndex(currentIndex)
+	currentIndex = calculateNextElementIndex(currentIndex)
 
 	//remove not current element class
-	for (let element of hiddenElements){
+	for (let element of hiddenElements) {
 		//check if holdAns is on
-		if (element.classList.contains('revealed') && !holdAns){
+		if (element.classList.contains('revealed') && !holdAns) {
 			element.classList.remove('revealed');
 		}
-		if (element.classList.contains('current')){
+		if (element.classList.contains('current')) {
 			element.classList.remove('current');
 		}
 	}
@@ -150,8 +165,8 @@ function goToNextElement(key) {
 	}
 	if (key === 's') currentIndex = adjacentIndex[adjacentIndex.length - 1];
 	else if (key === 'a') currentIndex = adjacentIndex[0];
-	
-	
+
+
 
 	//scroll to current element
 	if (autoScroll) scrollToElementVertically(hiddenElements[currentIndex]);
@@ -175,7 +190,7 @@ function scrollToElementVertically(element) {
 }
 
 //shuffle table row
-function shuffleTable(){
+function shuffleTable() {
 	let table = document.getElementsByTagName("table")[0];
 
 	let rowsCollection = table.querySelectorAll("tr");
@@ -202,7 +217,7 @@ function shuffleArray(array) {
 };
 
 //find next nearest saved element
-function nextSaveElement(set){
+function nextSaveElement(set) {
 	let nextNearest;
 	for (let num of set) {
 		if (num > currentIndex) {
@@ -248,7 +263,7 @@ function addMarkToSaveIndex(saveIndex) {
 function saveToSaveIndex() {
 	let index = checkAdjacentElement(currentIndex)[0];
 	//check if saveIndex is empty
-	if (localStorage.getItem(localStorage_saveIndex) === null){
+	if (localStorage.getItem(localStorage_saveIndex) === null) {
 		saveIndex = new Set([index]);
 		hiddenElements[index].classList.add('mark');
 	}
@@ -258,7 +273,7 @@ function saveToSaveIndex() {
 
 		//check if current element is in saveIndex
 		//delete element from saveIndex if it in
-		if (saveIndex.has(index)){
+		if (saveIndex.has(index)) {
 			saveIndex.delete(index)
 			hiddenElements[index].classList.remove('mark');
 		}
@@ -273,26 +288,26 @@ function saveToSaveIndex() {
 }
 
 //Event listener for keypress
-function keyPress(event){
-	if (event.key === 'a') {
+function keyPress(event) {
+	if (event.key === 'a' || event.key === "'") {
 		goToNextElement('a');
 	}
-	else if (event.key === 's') {
+	else if (event.key === 's' || event.key === ";") {
 		goToNextElement('s');
 	}
-	else if (event.key === 'd') {
+	else if (event.key === 'd' || event.key === 'l') {
 		revealTextElement();
 	}
-	else if (event.key === 'f') {
+	else if (event.key === 'f' || event.key === 'k') {
 		revealAllTextElement();
 	}
-	else if (event.key === 'e') {
+	else if (event.key === 'r' || event.key === 'i') {
 		scrollToElementVertically(hiddenElements[currentIndex]);
 	}
-	else if (event.key === 'q') {
+	else if (event.key === 'q' || event.key === '[') {
 		autoScroll = !autoScroll;
 	}
-	else if (event.key === 'w') {
+	else if (event.key === 'w' || event.key === 'p') {
 		const scrollAmount = window.innerHeight / 4;
 
 		// Scroll down by the calculated amount
@@ -301,7 +316,7 @@ function keyPress(event){
 			behavior: 'smooth' // Smooth scrolling
 		});
 	}
-	else if (event.key === 'r') {
+	else if (event.key === 'e' || event.key === 'o') {
 		const scrollAmount = window.innerHeight / 4;
 
 		// Scroll up by the calculated amount
@@ -315,7 +330,7 @@ function keyPress(event){
 		event.preventDefault();
 		input.focus();
 	}
-	else if (event.key === 'g') {
+	else if (event.key === 'g' || event.key === 'j') {
 		//toggle holdAns function
 		holdAns = !holdAns
 	}
@@ -338,7 +353,7 @@ function keyPress(event){
 	}
 	else if (event.key === 'b') {
 		//check if saveIndex is empty > if empty do nothing
-		if (saveIndex.size != 0){
+		if (saveIndex.size != 0) {
 			//check if current element is selected
 			if (currentIndex != null) {
 				for (let i of checkAdjacentElement(currentIndex)) {
@@ -360,7 +375,7 @@ function keyPress(event){
 		}
 	}
 	else if (event.key === 'z') {
-		shuffleTable();			
+		shuffleTable();
 	}
 	else if (event.key === 'h') {
 		alert(`Hidden element = ${hiddenElements.length}\nCurrent = ${currentIndex}\nSave element = ${saveIndex.size}\nA = go up\nS = go down\nD = reveal\nF = reveal all\nE = to select\nW = scroll down\nR = scroll up\nQ = toggle auto scroll\nT = focus on input\nG = hold reveal\nN = new bookmark\nB = go to bookmark`);
@@ -371,18 +386,18 @@ function keyPress(event){
 };
 
 //add input element to document
-function inputElement(){
+function inputElement() {
 	document.body.appendChild(input);
 };
 
 //detect mobile browser
-function isMobile(){
+function isMobile() {
 	let agent = navigator.userAgent;
 	return mobileBrowser.test(agent);
 };
 
-function main(){
-	if (!isMobile()){
+function main() {
+	if (!isMobile()) {
 		document.addEventListener('DOMContentLoaded', findHiddenTextElements);
 		document.addEventListener('keydown', keyPress);
 		document.addEventListener('DOMContentLoaded', inputElement);
@@ -391,19 +406,19 @@ function main(){
 		input.addEventListener('keydown', inputKeyPress);
 
 		//if focus on input element, don't listen to keypress
-		input.addEventListener('focusin', function(){
+		input.addEventListener('focusin', function () {
 			document.removeEventListener('keydown', keyPress);
 		});
 
 		//if not focus on input element, listen to keypress
-		input.addEventListener('focusout', function(){
+		input.addEventListener('focusout', function () {
 			document.addEventListener('keydown', keyPress);
 		});
 	}
 
 	//add button if on mobile
 	else if (isMobile()) {
-		pdf = window.location.pathname.split("/").pop().replace('.html','.pdf')
+		pdf = window.location.pathname.split("/").pop().replace('.html', '.pdf')
 		window.open(pdf, '_self');
 	};
 }
